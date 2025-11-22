@@ -73,6 +73,7 @@ El desarrollo se organiza según los siguientes hitos:
 ![img.png](img.png)
 
 
+
 ## Documentación
 La documentación completa se encuentra en la Wiki del repositorio e incluye:
 
@@ -81,4 +82,38 @@ La documentación completa se encuentra en la Wiki del repositorio e incluye:
 - Diagrama DER
 - Arquitectura del sistema
 - Justificación de los patrones de diseño 
+
+--- 
+# Pendientes equipo
+
+## Fase 1: Persistencia y Modelado (JPA)
+- [ ] Configurar `application.properties` 
+- [ ] Mapear `Employee` como `@Entity`
+- [ ] Mapear `Excuse` y `TypeExcuse` como `@Entity`
+- [ ] Mapear `Prontuario` como `@Entity`
+- [ ] Crear Repositorios (`ExcuseRepository`, `EmployeeRepository`)
+- [ ] **TDD:** Tests de integración para Repositorios (H2)
+
+## Fase 2: Lógica de Negocio (Service Layer)
+- [ ] Crear `ExcuseService`
+- [ ] Migrar lógica de construcción de cadena (`Builder`) al servicio
+- [ ] Implementar método `registrarExcusa(ExcuseDTO)`
+- [ ] **TDD:** Tests unitarios de `ExcuseService` con Mockito
+
+## Fase 3: API REST (Controllers)
+- [ ] Crear `EmployeeController` (GET / POST)
+- [ ] Crear `ExcuseController` (POST /excusas - Chain Integration)
+- [ ] Crear Endpoints de consulta (GET /excusas, GET /rechazadas)
+- [ ] **TDD:** Tests de integración con `MockMvc` para cada endpoint
+
+## Fase 4: Requisitos Avanzados
+- [ ] Implementar filtros de búsqueda (Fecha, Legajo)
+- [ ] Implementar `PUT /encargados/modo` (Cambio de estrategia en tiempo real)
+- [ ] Implementar `DELETE /excusas` (Validación de fecha)
+
+## Fase 5: Documentación y Entrega
+- [ ] Generar Diagrama DER
+- [ ] Actualizar Diagrama UML (Incluyendo capas MVC)
+- [ ] Escribir README con justificación de patrones
+- [ ] Verificar Coverage de Tests (>80%)
 
