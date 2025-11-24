@@ -1,4 +1,5 @@
 package davinci.edu.ar.excusasSA.model.strategy;
 
-public class Strategy {
+public interface Strategy {
+    // void handlerExcuse();
 }
