@@ -2,6 +2,7 @@ package davinci.edu.ar.excusasSA.repository;
 
 import davinci.edu.ar.excusasSA.model.Excuse;
 import davinci.edu.ar.excusasSA.model.inchargers.Receptionist;
+import davinci.edu.ar.excusasSA.model.typeExcuse.TrivialExcuse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
