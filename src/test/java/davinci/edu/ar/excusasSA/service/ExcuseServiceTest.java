@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
-import static jdk.jfr.internal.jfc.model.Constraint.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ExcuseServiceTest {
