@@ -1,6 +1,7 @@
 package davinci.edu.ar.excusasSA.controller;
 
 import davinci.edu.ar.excusasSA.dto.EmployeeDTO;
+import davinci.edu.ar.excusasSA.model.Employee;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,5 +27,15 @@ public class EmployeeController {
         return employeeRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    private EmployeeDTO mapToDTO(Employee employee) {
+        String role = employee.getClass().getSimpleName();
+        return new EmployeeDTO(
+                employee.getName(),
+                employee.getEmail(),
+                employee.getLegajo(),
+                role
+        );
     }
 }
