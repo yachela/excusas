@@ -5,4 +5,5 @@ public class ProntuarioDTO {
     private String employeeName;
     private String fecha;
     private String estadoExcusa;
+    private String motivo;
 }
