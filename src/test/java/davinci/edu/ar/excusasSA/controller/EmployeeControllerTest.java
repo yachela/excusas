@@ -1,7 +1,7 @@
 package davinci.edu.ar.excusasSA.controller;
 
-import davinci.edu.ar.excusasSA.model.Employee;
-import davinci.edu.ar.excusasSA.model.inchargers.Receptionist;
+
+import davinci.edu.ar.excusasSA.model.employee.incharge.Receptionist;
 import davinci.edu.ar.excusasSA.model.strategy.Normal;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import org.junit.jupiter.api.DisplayName;

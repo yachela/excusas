@@ -1,7 +1,6 @@
 package davinci.edu.ar.excusasSA.service;
 
-import davinci.edu.ar.excusasSA.model.Employee;
-import davinci.edu.ar.excusasSA.model.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import davinci.edu.ar.excusasSA.repository.ExcuseRepository;
 import org.junit.jupiter.api.DisplayName;
