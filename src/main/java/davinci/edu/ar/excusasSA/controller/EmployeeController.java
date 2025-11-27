@@ -1,7 +1,7 @@
 package davinci.edu.ar.excusasSA.controller;
 
 import davinci.edu.ar.excusasSA.dto.EmployeeDTO;
-import davinci.edu.ar.excusasSA.model.Employee;
+import davinci.edu.ar.excusasSA.model.employee.Employee;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

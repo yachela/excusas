@@ -1,25 +1,27 @@
-package davinci.edu.ar.excusasSA.model.inchargers;
+package davinci.edu.ar.excusasSA.model.employee.incharge;
 
-import davinci.edu.ar.excusasSA.model.Employee;
-import davinci.edu.ar.excusasSA.model.Excuse;
+import davinci.edu.ar.excusasSA.model.employee.Employee;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
 import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
-public abstract class InCharge extends Employee {
+@NoArgsConstructor
+public abstract class InCharge extends Employee implements Handler {
 
+    protected Strategy strategy;
     @Transient
-    protected InCharge next;
+    protected Handler next;
 
     public InCharge(String name, String email, Long legajo, Strategy strategy) {
+        super(name, email, legajo);
+        this.strategy = strategy;
     }
 
-    public InCharge() {
-
-    }
-
-    public void setHandler(InCharge next) {
+    public void setHandler(Handler next) {
         this.next = next;
     }
 
