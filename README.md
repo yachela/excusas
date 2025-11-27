@@ -68,10 +68,77 @@ El desarrollo se organiza según los siguientes hitos:
 7. Exposición del sistema mediante API REST
 
 
-## Estructura del Proyecto (Spring Boot)
+## Estructura del Proyecto 
+```text
+```text
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── davinci/
+│   │           └── excusas/
+│   │               ├── config/               
+│   │               ├── controller/          
+│   │               │   ├── EmpleadoController.java
+│   │               │   ├── ExcusaController.java
+│   │               │   ├── EncargadoController.java
+│   │               │   └── ProntuarioController.java
+│   │               ├── dto/                 
+│   │               │   ├── request/
+│   │               │   └── response/
+│   │               ├── exception/          
+│   │               ├── model/               
+│   │               │   ├── entity/          
+│   │               │   │   ├── Empleado.java
+│   │               │   │   ├── Excusa.java
+│   │               │   │   └── Prontuario.java
+│   │               │   ├── enums/          
+│   │               │   │   ├── TipoExcusa.java
+│   │               │   │   └── ModoTrabajo.java
+│   │               │   ├── encargados/       
+│   │               │   │   ├── InCharge.java       
+│   │               │   │   ├── AreaSupervisor.java
+│   │               │   │   ├── CEO.java
+│   │               │   │   ├── Receptionist.java
+│   │               │   │   └── BuilderLineInCharge.java
+│   │               │   ├── comportamientos/  
+│   │               │   │   ├── Strategy.java       
+│   │               │   │   ├── Lazy.java
+│   │               │   │   ├── Normal.java
+│   │               │   │   └── Productive.java
+│   │               │   ├── clasificacion/    
+│   │               │   │   ├── TypeExcuse.java     
+│   │               │   │   ├── TrivialExcuse.java
+│   │               │   │   └── ComplexExcuse.java
+│   │               │   └── administracion/   
+│   │               │       ├── Publisher.java
+│   │               │       ├── Subscriber.java
+│   │               │       └── ProntuarioAdministrator.java
+[cite_start]│   │               ├── repository/       
+│   │               │   ├── EmpleadoRepository.java
+│   │               │   ├── ExcusaRepository.java
+│   │               │   └── ProntuarioRepository.java
+[cite_start]│   │               └── service/           
+│   │                   ├── EmpleadoService.java
+│   │                   ├── ExcusaService.java
+│   │                   └── impl/
+│   ├── resources/
+│   │   ├── application.properties
+[cite_start]│   │   ├── application-mysql.properties     
+[cite_start]│   │   └── application-test.properties      
+└── test/
+    └── java/
+        └── com/
+            └── davinci/
+                └── excusas/
+                    [cite_start]├── unit/               
+                    │   ├── model/           
+                    │   └── service/
+                    [cite_start]└── integration/        
+                        ├── controller/
+                        └── repository/
 
-![img.png](img.png)
-
+```
 
 
 ## Documentación
@@ -83,7 +150,7 @@ La documentación completa se encuentra en la Wiki del repositorio e incluye:
 - Arquitectura del sistema
 - Justificación de los patrones de diseño 
 
---- 
+
 # Pendientes equipo
 
 ## Fase 1: Persistencia y Modelado (JPA)
