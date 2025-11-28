@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class EmployeeControllerTest {
+class EmployeeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,7 +29,7 @@ public class EmployeeControllerTest {
 
     @Test
     @DisplayName("GET /empleados debe devolver lista de empleados en formato JSON")
-     void debeRetornarUnaListaDeEmepleados() throws Exception {
+    void debeRetornarUnaListaDeEmepleados() throws Exception {
         employeeRepository.save(new Receptionist( "Kevinha", "kevinha@excusas.com", 100L, new Normal()));
 
         mockMvc.perform(get("/empleados")

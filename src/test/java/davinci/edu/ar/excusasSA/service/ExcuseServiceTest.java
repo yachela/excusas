@@ -15,7 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class ExcuseServiceTest {
+class ExcuseServiceTest {
 
     @Mock
     private ExcuseRepository excuseRepository;
@@ -28,7 +28,7 @@ public class ExcuseServiceTest {
 
     @Test
     @DisplayName("Debe procesar una excusa y guardarla en el repositorio")
-    void debeProcesarYGuardarlaEnElRepositorio() {
+    void shouldReturnAListOfEmployees() {
         Excuse excuse = new Excuse();
 
         excuseService.processExcuse(excuse);
