@@ -1,5 +1,8 @@
 package davinci.edu.ar.excusasSA.model.employee;
 
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TrivialExcuse;
+import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TypeExcuse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,5 +29,10 @@ public abstract class Employee {
         this.name = name;
         this.email = email;
         this.legajo = legajo;
+    }
+
+    public Excuse generateExcuse( TypeExcuse typeExcuse) {
+        Excuse excuse = new Excuse(this, typeExcuse);
+        return excuse;
     }
 }
