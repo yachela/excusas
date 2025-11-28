@@ -1,7 +1,7 @@
 package davinci.edu.ar.excusasSA.controller;
 
 import davinci.edu.ar.excusasSA.dto.ProntuarioDTO;
-import davinci.edu.ar.excusasSA.model.Prontuario;
+import davinci.edu.ar.excusasSA.model.prontuario.Prontuario;
 import davinci.edu.ar.excusasSA.repository.ProntuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
