@@ -30,12 +30,12 @@ public class Excuse {
 
     private LocalDate fechaRegistro;
 
-    private String status;
+    private ExcuseStatus status;
 
     public Excuse(Employee employee, TypeExcuse typeExcuse) {
         this.employee = employee;
         this.typeExcuse = typeExcuse;
         this.fechaRegistro = LocalDate.now();
-        this.status = "PENDIENTE";
+        this.status = ExcuseStatus.Pending;
     }
 }

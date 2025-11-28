@@ -33,7 +33,7 @@ public class ProntuarioController {
         return new ProntuarioDTO(
                 prontuario.getEmployee().getName(),
                 prontuario.getExcuse().getFechaRegistro().toString(),
-                prontuario.getExcuse().getStatus(),
+                prontuario.getExcuse().getStatus().toString(),
                 "Asunto: "
         );
     }
