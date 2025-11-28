@@ -5,5 +5,5 @@ import jakarta.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("TRIVIAL")
-public class TrivialExcuse extends TypeExcuse {
+class TrivialExcuseTest {
 }

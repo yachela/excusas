@@ -1,8 +1,17 @@
-package davinci.edu.ar.excusasSA.model;
+package davinci.edu.ar.excusasSA.model.employee;
 
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TrivialExcuse;
+import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TypeExcuse;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "employee_type")
 @Table(name = "employees")
@@ -16,17 +25,14 @@ public abstract class Employee {
     private String email;
     private Long legajo;
 
-    public Employee() {
-    }
-
     protected Employee(String name, String email, Long legajo) {
         this.name = name;
         this.email = email;
         this.legajo = legajo;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public Long getLegajo() { return legajo; }
+    public Excuse generateExcuse( TypeExcuse typeExcuse) {
+        Excuse excuse = new Excuse(this, typeExcuse);
+        return excuse;
+    }
 }

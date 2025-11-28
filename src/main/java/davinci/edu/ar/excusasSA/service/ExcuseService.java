@@ -1,10 +1,10 @@
 package davinci.edu.ar.excusasSA.service;
 
-import davinci.edu.ar.excusasSA.model.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
 
-import davinci.edu.ar.excusasSA.model.inchargers.HumanResourcesManager;
-import davinci.edu.ar.excusasSA.model.inchargers.InCharge;
-import davinci.edu.ar.excusasSA.model.inchargers.Receptionist;
+import davinci.edu.ar.excusasSA.model.employee.incharge.HumanResourcesManager;
+import davinci.edu.ar.excusasSA.model.employee.incharge.InCharge;
+import davinci.edu.ar.excusasSA.model.employee.incharge.Receptionist;
 import davinci.edu.ar.excusasSA.model.strategy.Normal;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import davinci.edu.ar.excusasSA.repository.ExcuseRepository;

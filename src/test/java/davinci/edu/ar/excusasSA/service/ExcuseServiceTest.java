@@ -1,7 +1,6 @@
 package davinci.edu.ar.excusasSA.service;
 
-import davinci.edu.ar.excusasSA.model.Employee;
-import davinci.edu.ar.excusasSA.model.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import davinci.edu.ar.excusasSA.repository.ExcuseRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class ExcuseServiceTest {
+class ExcuseServiceTest {
 
     @Mock
     private ExcuseRepository excuseRepository;
@@ -29,7 +28,7 @@ public class ExcuseServiceTest {
 
     @Test
     @DisplayName("Debe procesar una excusa y guardarla en el repositorio")
-    void debeProcesarYGuardarlaEnElRepositorio() {
+    void shouldReturnAListOfEmployees() {
         Excuse excuse = new Excuse();
 
         excuseService.processExcuse(excuse);

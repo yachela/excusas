@@ -1,10 +1,11 @@
 package davinci.edu.ar.excusasSA.model;
 
-import davinci.edu.ar.excusasSA.model.inchargers.InCharge;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
+import davinci.edu.ar.excusasSA.model.employee.incharge.InCharge;
 import davinci.edu.ar.excusasSA.model.strategy.Normal;
 
-public class HumanResourcesManager extends InCharge {
-    public HumanResourcesManager(String rrhh, String mail, long l, Normal normal) {
+class HumanResourcesManagerTest extends InCharge {
+    public HumanResourcesManagerTest(String rrhh, String mail, long l, Normal normal) {
         super();
     }
 

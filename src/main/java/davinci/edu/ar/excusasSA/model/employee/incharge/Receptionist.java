@@ -1,16 +1,15 @@
-package davinci.edu.ar.excusasSA.model.inchargers;
+package davinci.edu.ar.excusasSA.model.employee.incharge;
 
-import davinci.edu.ar.excusasSA.model.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.Excuse;
 import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
 @DiscriminatorValue("RECEPTIONIST")
 public class Receptionist extends InCharge {
-
-    public Receptionist() {
-    }
 
     public Receptionist(String name, String email, Long legajo, Strategy strategy) {
         super(name, email, legajo, strategy);

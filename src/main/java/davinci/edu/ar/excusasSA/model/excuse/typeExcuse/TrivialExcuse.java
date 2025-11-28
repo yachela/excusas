@@ -1,4 +1,4 @@
-package davinci.edu.ar.excusasSA.model.typeExcuse;
+package davinci.edu.ar.excusasSA.model.excuse.typeExcuse;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

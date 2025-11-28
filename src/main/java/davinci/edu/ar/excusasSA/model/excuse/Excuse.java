@@ -1,12 +1,18 @@
-package davinci.edu.ar.excusasSA.model;
+package davinci.edu.ar.excusasSA.model.excuse;
 
-import davinci.edu.ar.excusasSA.model.typeExcuse.TypeExcuse;
+import davinci.edu.ar.excusasSA.model.employee.Employee;
+import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TypeExcuse;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "excusas")
 public class Excuse {
 
@@ -24,52 +30,12 @@ public class Excuse {
 
     private LocalDate fechaRegistro;
 
-    private String status;
-
-    public Excuse() {}
+    private ExcuseStatus status;
 
     public Excuse(Employee employee, TypeExcuse typeExcuse) {
         this.employee = employee;
         this.typeExcuse = typeExcuse;
         this.fechaRegistro = LocalDate.now();
-        this.status = "PENDIENTE";
+        this.status = ExcuseStatus.Pending;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-    public TypeExcuse getTypeExcuse() {
-        return typeExcuse;
-    }
-
-    public void setTypeExcuse(TypeExcuse typeExcuse) {
-        this.typeExcuse = typeExcuse;
-    }
-
-    public LocalDate getFechaRegistro() {
-        return fechaRegistro;
-    }
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
 }
