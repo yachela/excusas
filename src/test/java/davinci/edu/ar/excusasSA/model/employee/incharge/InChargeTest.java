@@ -45,42 +45,48 @@ class InChargeTest {
         Excuse realExcuse = new Excuse(mockEmployee, mockTypeExcuse);
         spyExcuse = spy(realExcuse);
 
-        handlerCanHandle = spy(new TestInCharge("JefeA", "jefeA@mail.com", 1L, mockStrategy, true));
+        handlerCanHandle = spy(new TestInCharge("BossA", "bossA@mail.com", 1L, mockStrategy, true));
         handlerCanHandle.configureService(mockEmailSender);
 
-        handlerCannotHandle = spy(new TestInCharge("JefeB", "jefeB@mail.com", 2L, mockStrategy, false));
+        handlerCannotHandle = spy(new TestInCharge("BossB", "bossB@mail.com", 2L, mockStrategy, false));
         handlerCannotHandle.configureService(mockEmailSender);
         handlerCannotHandle.setHandler(mockNextHandler);
     }
 
     @Test
-    void handlerExcuse_ShouldProcess_WhenCanHandleIsTrue() {
-        // Act
+    void handlerExcuse_ShouldExecuteStrategyAndProcess_WhenCanHandleIsTrue() {
+        // ARRANGE
+
+        // ACT
         handlerCanHandle.handlerExcuse(spyExcuse);
-        // Assert
-        assertEquals(ExcuseStatus.Processed, spyExcuse.getStatus(), "La excusa debe ser procesada.");
-        verify(handlerCanHandle, times(1)).processExcuse(spyExcuse, mockEmailSender);
-        verify(spyExcuse, times(1)).executeProcess(spyExcuse, mockEmailSender);
+
+        // ASSERT
+        assertEquals(ExcuseStatus.Processed, spyExcuse.getStatus(), "The excuse status must be Processed.");
+        verify(mockStrategy, times(1)).handlerExcuse(handlerCanHandle, spyExcuse, mockEmailSender);
+        verify(handlerCanHandle, never()).processExcuse(any(), any());
+        verify(spyExcuse, never()).executeProcess(any(), any());
         verify(mockNextHandler, never()).handlerExcuse(any(Excuse.class));
     }
 
     @Test
     void handlerExcuse_ShouldDelegateToNext_WhenCanHandleIsFalse() {
-        // Act
+        // ARRANGE
+        // ACT
         handlerCannotHandle.handlerExcuse(spyExcuse);
-        // Assert
-        assertEquals(ExcuseStatus.Pending, spyExcuse.getStatus(), "La excusa debe seguir pendiente.");
+        // ASSERT
+        assertEquals(ExcuseStatus.Pending, spyExcuse.getStatus(), "The excuse status must remain Pending.");
         verify(mockNextHandler, times(1)).handlerExcuse(spyExcuse);
         verify(handlerCannotHandle, never()).processExcuse(any(), any());
+        verify(mockStrategy, never()).handlerExcuse(any(), any(), any());
     }
 
     @Test
     void configureService_ShouldInjectEmailSender() {
-        // Arrange
+        // ARRANGE
         TestInCharge newHandler = new TestInCharge("TestDI", "di@mail.com", 4L, mockStrategy, true);
-        // Act: Llamamos al método de inyección (como lo haría Spring)
+        // ACT
         newHandler.configureService(mockEmailSender);
-        // Assert
-        assertEquals(mockEmailSender, newHandler.getEmailSender(), "El EmailSender debe haber sido inyectado.");
+        // ASSERT
+        assertEquals(mockEmailSender, newHandler.getEmailSender(), "The EmailSender must have been injected.");
     }
 }

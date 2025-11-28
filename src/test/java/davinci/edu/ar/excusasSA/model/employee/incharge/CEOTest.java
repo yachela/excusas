@@ -9,14 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-class HumanResourcesManagerTest {
+class CEOTest {
 
-    private HumanResourcesManager rrhhManager;
-
+    private CEO ceo;
     @Mock
     private Strategy mockStrategy;
     @Mock
@@ -26,60 +24,55 @@ class HumanResourcesManagerTest {
     @Mock
     private Handler mockNextHandler;
 
-    private static final String NAME = "Ana HR";
-    private static final String EMAIL = "ana@hr.com";
-    private static final Long LEGAJO = 700L;
+    private static final String NAME = "Supreme Boss";
+    private static final String EMAIL = "ceo@suprema.com";
+    private static final Long LEGAJO = 1L;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        rrhhManager = new HumanResourcesManager(NAME, EMAIL, LEGAJO, mockStrategy);
-        rrhhManager.setEmailSender(mockEmailSender);
-        rrhhManager.setHandler(mockNextHandler);
+        ceo = new CEO(NAME, EMAIL, LEGAJO, mockStrategy);
+        ceo.setEmailSender(mockEmailSender);
+        ceo.setHandler(mockNextHandler);
     }
 
     @Test
-    void canHandleExcuse_shouldReturnTrue_whenExcuseIsComplex() {
+    void canHandleExcuse_shouldReturnTrue_whenExcuseIsImplausible() {
         // ARRANGE
+        when(mockExcuse.isImplausible()).thenReturn(true);
+        // ACT & ASSERT
+        assertTrue(ceo.canHandleExcuse(mockExcuse),
+                "The CEO must handle implausible excuses.");
+    }
+
+    @Test
+    void canHandleExcuse_shouldReturnFalse_whenExcuseIsNotImplausible() {
+        // ARRANGE
+        when(mockExcuse.isImplausible()).thenReturn(false);
         when(mockExcuse.isComplex()).thenReturn(true);
-
         // ACT & ASSERT
-        assertTrue(rrhhManager.canHandleExcuse(mockExcuse),
-                "HR Manager must handle complex excuses.");
-    }
-
-    @Test
-    void canHandleExcuse_shouldReturnFalse_whenExcuseIsNotComplex() {
-        // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(false);
-
-        // ACT & ASSERT
-        assertFalse(rrhhManager.canHandleExcuse(mockExcuse),
-                "HR Manager must not handle excuses that are not complex.");
+        assertFalse(ceo.canHandleExcuse(mockExcuse),
+                "The CEO must not handle excuses that are not implausible.");
     }
 
     @Test
     void handlerExcuse_shouldProcess_whenCanHandle() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(true);
-
+        when(mockExcuse.isImplausible()).thenReturn(true);
         // ACT
-        rrhhManager.handlerExcuse(mockExcuse);
-
+        ceo.handlerExcuse(mockExcuse);
         // ASSERT
         verify(mockExcuse, times(1)).setStatus(ExcuseStatus.Processed);
-        verify(mockStrategy, times(1)).handlerExcuse(rrhhManager, mockExcuse, mockEmailSender);
+        verify(mockStrategy, times(1)).handlerExcuse(ceo, mockExcuse, mockEmailSender);
         verify(mockNextHandler, never()).handlerExcuse(mockExcuse);
     }
 
     @Test
     void handlerExcuse_shouldDelegate_whenCannotHandle() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(false);
-
+        when(mockExcuse.isImplausible()).thenReturn(false);
         // ACT
-        rrhhManager.handlerExcuse(mockExcuse);
-
+        ceo.handlerExcuse(mockExcuse);
         // ASSERT
         verify(mockNextHandler, times(1)).handlerExcuse(mockExcuse);
         verify(mockExcuse, never()).setStatus(any(ExcuseStatus.class));
