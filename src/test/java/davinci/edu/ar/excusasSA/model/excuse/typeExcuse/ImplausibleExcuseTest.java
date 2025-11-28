@@ -12,7 +12,7 @@ class ImplausibleExcuseTest {
     @BeforeEach
     void setUp() {
         // Arrange
-        trivialExcuse = new ImplausibleExcuse();
+        implausibleExcuse = new ImplausibleExcuse();
     }
 
     @Test

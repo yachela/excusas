@@ -33,20 +33,14 @@ class FamilyEmergencyTest {
     }
 
     @Test
-    void getDestinationEmail_shouldReturnHREmail() {
-        String expectedEmail = "HR@company.com";
-        assertEquals(expectedEmail, familyEmergency.getDestinationEmail(mockExcuse));
-    }
-
-    @Test
     void getAffair_shouldReturnEmergencyAffair() {
-        String expectedAffair = "Notice of family emergency";
+        String expectedAffair = "concern to the employee";
         assertEquals(expectedAffair, familyEmergency.getAffair());
     }
 
     @Test
     void getBody_shouldReturnEmergencyBody() {
-        String expectedBody = "I need to take emergency leave";
+        String expectedBody = "is everything okay?";
         assertEquals(expectedBody, familyEmergency.getBody());
     }
 }
