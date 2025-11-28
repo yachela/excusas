@@ -1,13 +1,16 @@
 package davinci.edu.ar.excusasSA.model.employee.incharge;
 
 import davinci.edu.ar.excusasSA.model.excuse.Excuse;
-import davinci.edu.ar.excusasSA.model.excuse.ExcuseStatus;
+import davinci.edu.ar.excusasSA.model.employee.Employee;
+import davinci.edu.ar.excusasSA.model.prontuario.Prontuario;
 import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import davinci.edu.ar.excusasSA.service.EmailSenderService;
+import davinci.edu.ar.excusasSA.service.ProntuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CEOTest {
 
     private CEO ceo;
+
     @Mock
     private Strategy mockStrategy;
     @Mock
@@ -22,7 +26,9 @@ class CEOTest {
     @Mock
     private Excuse mockExcuse;
     @Mock
-    private Handler mockNextHandler;
+    private ProntuarioService mockProntuarioService;
+    @Mock
+    private Employee mockEmployee;
 
     private static final String NAME = "Supreme Boss";
     private static final String EMAIL = "ceo@suprema.com";
@@ -30,10 +36,10 @@ class CEOTest {
 
     @BeforeEach
     void setUp() {
+        // ARRANGE
         MockitoAnnotations.openMocks(this);
         ceo = new CEO(NAME, EMAIL, LEGAJO, mockStrategy);
-        ceo.setEmailSender(mockEmailSender);
-        ceo.setHandler(mockNextHandler);
+        ceo.setProntuarioService(mockProntuarioService);
     }
 
     @Test
@@ -49,33 +55,26 @@ class CEOTest {
     void canHandleExcuse_shouldReturnFalse_whenExcuseIsNotImplausible() {
         // ARRANGE
         when(mockExcuse.isImplausible()).thenReturn(false);
-        when(mockExcuse.isComplex()).thenReturn(true);
         // ACT & ASSERT
         assertFalse(ceo.canHandleExcuse(mockExcuse),
                 "The CEO must not handle excuses that are not implausible.");
     }
 
     @Test
-    void handlerExcuse_shouldProcess_whenCanHandle() {
+    void processExcuse_shouldExecuteExcuseAndSaveProntuario() {
         // ARRANGE
-        when(mockExcuse.isImplausible()).thenReturn(true);
+        when(mockExcuse.getEmployee()).thenReturn(mockEmployee);
+        ArgumentCaptor<Prontuario> prontuarioCaptor = ArgumentCaptor.forClass(Prontuario.class);
         // ACT
-        ceo.handlerExcuse(mockExcuse);
+        ceo.processExcuse(mockExcuse, mockEmailSender);
         // ASSERT
-        verify(mockExcuse, times(1)).setStatus(ExcuseStatus.Processed);
-        verify(mockStrategy, times(1)).handlerExcuse(ceo, mockExcuse, mockEmailSender);
-        verify(mockNextHandler, never()).handlerExcuse(mockExcuse);
-    }
-
-    @Test
-    void handlerExcuse_shouldDelegate_whenCannotHandle() {
-        // ARRANGE
-        when(mockExcuse.isImplausible()).thenReturn(false);
-        // ACT
-        ceo.handlerExcuse(mockExcuse);
-        // ASSERT
-        verify(mockNextHandler, times(1)).handlerExcuse(mockExcuse);
-        verify(mockExcuse, never()).setStatus(any(ExcuseStatus.class));
-        verify(mockStrategy, never()).handlerExcuse(any(), any(), any());
+        verify(mockExcuse, times(1)).executeProcess(mockExcuse, mockEmailSender);
+        verify(mockProntuarioService, times(1)).addProntuario(prontuarioCaptor.capture());
+        Prontuario createdProntuario = prontuarioCaptor.getValue();
+        assertNotNull(createdProntuario, "A Prontuario object must be created.");
+        assertSame(mockEmployee, createdProntuario.getEmployee(),
+                "The created Prontuario must contain the correct Employee.");
+        assertSame(mockExcuse, createdProntuario.getExcuse(),
+                "The created Prontuario must contain the processed Excuse.");
     }
 }

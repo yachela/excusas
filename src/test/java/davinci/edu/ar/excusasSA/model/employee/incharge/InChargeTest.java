@@ -56,10 +56,8 @@ class InChargeTest {
     @Test
     void handlerExcuse_ShouldExecuteStrategyAndProcess_WhenCanHandleIsTrue() {
         // ARRANGE
-
         // ACT
         handlerCanHandle.handlerExcuse(spyExcuse);
-
         // ASSERT
         assertEquals(ExcuseStatus.Processed, spyExcuse.getStatus(), "The excuse status must be Processed.");
         verify(mockStrategy, times(1)).handlerExcuse(handlerCanHandle, spyExcuse, mockEmailSender);
