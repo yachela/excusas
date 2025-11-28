@@ -17,6 +17,6 @@ public class Receptionist extends InCharge {
 
     @Override
     protected boolean canHandleExcuse(Excuse excuse) {
-        return excuse.getTypeExcuse().getClass().getSimpleName().equals("TrivialExcuse");
+        return excuse.isTrivial();
     }
 }

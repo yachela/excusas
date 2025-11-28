@@ -16,6 +16,6 @@ public class CEO extends InCharge {
     }
     @Override
     protected boolean canHandleExcuse(Excuse excuse) {
-        return false;
+        return excuse.isImplausible();
     }
 }

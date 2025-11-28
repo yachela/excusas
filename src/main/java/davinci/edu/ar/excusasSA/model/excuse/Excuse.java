@@ -31,6 +31,7 @@ public class Excuse implements IExcuse {
 
     private LocalDate fechaRegistro;
 
+    @Enumerated(EnumType.STRING)
     private ExcuseStatus status;
 
     public Excuse(Employee employee, TypeExcuse typeExcuse) {
@@ -45,21 +46,21 @@ public class Excuse implements IExcuse {
     }
     @Override
     public boolean isTrivial() {
-        return false;
+        return this.typeExcuse.isTrivial();
     }
 
     @Override
     public boolean isImplausible() {
-        return false;
+        return this.typeExcuse.isImplausible();
     }
 
     @Override
     public boolean isComplex() {
-        return false;
+        return this.typeExcuse.isComplex();
     }
 
     @Override
     public boolean isModerate() {
-        return false;
+        return this.typeExcuse.isModerate();
     }
 }
