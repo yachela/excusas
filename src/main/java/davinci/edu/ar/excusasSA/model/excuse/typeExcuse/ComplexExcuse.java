@@ -6,15 +6,16 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
-@DiscriminatorValue("TRIVIAL")
-public class TrivialExcuse extends TypeExcuse{
-
+@DiscriminatorValue("COMPLEX")
+public class ComplexExcuse extends TypeExcuse{
     @Override
-    public boolean isTrivial() { return true; }
+    public boolean isComplex() {
+        return true;
+    }
 
     @Override
     protected String getAffair() {
-        return "reason for delay";
+        return "Excuse Complex";
     }
 
     @Override
@@ -23,7 +24,5 @@ public class TrivialExcuse extends TypeExcuse{
     }
 
     @Override
-    public String toString() {
-        return "TrivialExcuse";
-    }
+    public String toString (){ return "ComplexExcuse"; }
 }

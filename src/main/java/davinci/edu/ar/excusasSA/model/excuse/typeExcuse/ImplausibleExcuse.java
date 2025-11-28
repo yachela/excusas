@@ -6,24 +6,24 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
-@DiscriminatorValue("TRIVIAL")
-public class TrivialExcuse extends TypeExcuse{
+@DiscriminatorValue("IMPLAUSIBLE")
+public class ImplausibleExcuse extends TypeExcuse {
 
     @Override
-    public boolean isTrivial() { return true; }
+    public boolean isImplausible() { return true; }
 
     @Override
     protected String getAffair() {
-        return "reason for delay";
+        return "Approved for creativity";
     }
 
     @Override
     protected String getBody() {
-        return "the license was accepted";
+        return "good imagination crack";
     }
 
     @Override
-    public String toString() {
-        return "TrivialExcuse";
-    }
+    public String toString (){ return "ImplausibleExcuse"; }
+
+
 }
