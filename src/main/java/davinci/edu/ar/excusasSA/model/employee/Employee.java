@@ -1,7 +1,6 @@
 package davinci.edu.ar.excusasSA.model.employee;
 
 import davinci.edu.ar.excusasSA.model.excuse.Excuse;
-import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TrivialExcuse;
 import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TypeExcuse;
 import jakarta.persistence.*;
 import lombok.Getter;
