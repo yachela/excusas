@@ -39,7 +39,7 @@ public abstract class InCharge extends Employee implements Handler {
     public void handlerExcuse(Excuse excuse) {
         if (canHandleExcuse(excuse)) {
             excuse.setStatus(ExcuseStatus.Processed);
-            //this.strategy.handlerExcuse()
+            this.strategy.handlerExcuse(this, excuse, emailSender);
         } else {
             nextHandlerExcuse(excuse);
         }
