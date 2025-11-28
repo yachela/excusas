@@ -7,38 +7,55 @@ import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import davinci.edu.ar.excusasSA.service.EmailSenderService;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Entity
+@Component
 @NoArgsConstructor
+@Getter
+@Setter
 public abstract class InCharge extends Employee implements Handler {
-
+    @Transient
     protected Strategy strategy;
     @Transient
     protected Handler next;
     protected EmailSenderService emailSender;
 
-    public InCharge(String name, String email, Long legajo, Strategy strategy) {
+    protected InCharge(String name, String email, Long legajo, Strategy strategy) {
         super(name, email, legajo);
         this.strategy = strategy;
     }
 
+    @Override
     public void setHandler(Handler next) {
         this.next = next;
     }
 
+    @Override
     public void handlerExcuse(Excuse excuse) {
         if (canHandleExcuse(excuse)) {
-            // this.strategy.handlerExcuse()
-            System.out.println("Excusa procesada por " + this.getName());
             excuse.setStatus(ExcuseStatus.Processed);
-        } else if (next != null) {
-            next.handlerExcuse(excuse);
+            //this.strategy.handlerExcuse()
         } else {
-            System.out.println("Nadie pudo procesar la excusa");
-            excuse.setStatus(ExcuseStatus.Unresolved);
+            nextHandlerExcuse(excuse);
         }
+    }
+
+    @Autowired
+    public void configureService(EmailSenderService emailSender) {
+        this.emailSender = emailSender;
+    }
+
+    public void nextHandlerExcuse(Excuse excuse) {
+        this.next.handlerExcuse(excuse);
+    }
+
+    public void processExcuse(Excuse excuse, EmailSenderService emailSender) {
+        excuse.executeProcess(excuse, emailSender);
     }
 
     protected abstract boolean canHandleExcuse(Excuse excuse);
