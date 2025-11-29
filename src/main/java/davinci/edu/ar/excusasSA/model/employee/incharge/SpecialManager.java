@@ -1,6 +1,7 @@
 package davinci.edu.ar.excusasSA.model.employee.incharge;
 
 import davinci.edu.ar.excusasSA.model.excuse.Excuse;
+import davinci.edu.ar.excusasSA.model.strategy.Normal;
 import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import davinci.edu.ar.excusasSA.service.EmailSenderService;
 import jakarta.persistence.DiscriminatorValue;
@@ -12,8 +13,8 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue("SPECIALMANAGER")
 public class SpecialManager extends InCharge {
 
-    public SpecialManager(String name, String email, Long legajo, Strategy strategy) {
-        super(name, email, legajo, strategy);
+    public SpecialManager(String name, String email, Long legajo) {
+        super(name, email, legajo, new Normal());
     }
     @Override
     public void processExcuse(Excuse excuse, EmailSenderService emailSender) {

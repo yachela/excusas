@@ -30,7 +30,7 @@ class SpecialManagerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        specialManager = new SpecialManager(NAME, MANAGER_EMAIL, LEGAJO, mockStrategy);
+        specialManager = new SpecialManager(NAME, MANAGER_EMAIL, LEGAJO);
         specialManager.setEmailSender(mockEmailSender);
         specialManager.setHandler(mockNextHandler);
         when(mockExcuse.getEmployee()).thenReturn(mockEmployee);
