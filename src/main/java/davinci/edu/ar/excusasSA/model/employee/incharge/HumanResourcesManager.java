@@ -16,6 +16,6 @@ public class HumanResourcesManager extends InCharge{
     }
     @Override
     protected boolean canHandleExcuse(Excuse excuse) {
-        return false;
+        return excuse.isComplex();
     }
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
-@DiscriminatorValue("AreaSupervisor")
+@DiscriminatorValue("AREASUPERVISOR")
 public class AreaSupervisor extends InCharge {
     public AreaSupervisor(String name, String email, Long legajo, Strategy strategy) {
         super(name, email, legajo, strategy);
@@ -17,6 +17,6 @@ public class AreaSupervisor extends InCharge {
 
     @Override
     protected boolean canHandleExcuse(Excuse excuse) {
-        return false;
+        return excuse.isModerate();
     }
 }

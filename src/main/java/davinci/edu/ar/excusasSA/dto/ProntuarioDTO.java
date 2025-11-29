@@ -1,12 +1,14 @@
 package davinci.edu.ar.excusasSA.dto;
-import lombok.Data;
-@Data
-public class ProntuarioDTO {
-    private String employeeName;
-    private String fecha;
-    private String estadoExcusa;
-    private String motivo;
+import jakarta.validation.constraints.Min;
+import lombok.*;
 
-    public ProntuarioDTO(String name, String string, String status, String s) {
-    }
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProntuarioDTO {
+
+    private Long id;
+    private Long employeeId;
+    private Long excuseId;
 }

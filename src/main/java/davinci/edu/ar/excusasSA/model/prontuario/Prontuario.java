@@ -1,4 +1,4 @@
-package davinci.edu.ar.excusasSA.model;
+package davinci.edu.ar.excusasSA.model.prontuario;
 
 import davinci.edu.ar.excusasSA.model.employee.Employee;
 import davinci.edu.ar.excusasSA.model.excuse.Excuse;

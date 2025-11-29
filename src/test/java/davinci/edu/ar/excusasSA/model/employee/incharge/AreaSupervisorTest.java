@@ -9,14 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-class HumanResourcesManagerTest {
+class AreaSupervisorTest {
 
-    private HumanResourcesManager rrhhManager;
-
+    private AreaSupervisor areaSupervisor;
     @Mock
     private Strategy mockStrategy;
     @Mock
@@ -26,60 +24,55 @@ class HumanResourcesManagerTest {
     @Mock
     private Handler mockNextHandler;
 
-    private static final String NAME = "Ana HR";
-    private static final String EMAIL = "ana@hr.com";
-    private static final Long LEGAJO = 700L;
+    private static final String NAME = "Head Supervisor";
+    private static final String EMAIL = "supervisor@area.com";
+    private static final Long LEGAJO = 300L;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        rrhhManager = new HumanResourcesManager(NAME, EMAIL, LEGAJO, mockStrategy);
-        rrhhManager.setEmailSender(mockEmailSender);
-        rrhhManager.setHandler(mockNextHandler);
+        areaSupervisor = new AreaSupervisor(NAME, EMAIL, LEGAJO, mockStrategy);
+        areaSupervisor.setEmailSender(mockEmailSender);
+        areaSupervisor.setHandler(mockNextHandler);
     }
 
     @Test
-    void canHandleExcuse_shouldReturnTrue_whenExcuseIsComplex() {
+    void canHandleExcuse_shouldReturnTrue_whenExcuseIsModerate() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(true);
-
+        when(mockExcuse.isModerate()).thenReturn(true);
         // ACT & ASSERT
-        assertTrue(rrhhManager.canHandleExcuse(mockExcuse),
-                "HR Manager must handle complex excuses.");
+        assertTrue(areaSupervisor.canHandleExcuse(mockExcuse),
+                "The Area Supervisor must handle moderate excuses.");
     }
 
     @Test
-    void canHandleExcuse_shouldReturnFalse_whenExcuseIsNotComplex() {
+    void canHandleExcuse_shouldReturnFalse_whenExcuseIsNotModerate() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(false);
-
+        when(mockExcuse.isModerate()).thenReturn(false);
+        when(mockExcuse.isTrivial()).thenReturn(true);
         // ACT & ASSERT
-        assertFalse(rrhhManager.canHandleExcuse(mockExcuse),
-                "HR Manager must not handle excuses that are not complex.");
+        assertFalse(areaSupervisor.canHandleExcuse(mockExcuse),
+                "The Area Supervisor must not handle excuses that are not moderate.");
     }
 
     @Test
     void handlerExcuse_shouldProcess_whenCanHandle() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(true);
-
+        when(mockExcuse.isModerate()).thenReturn(true);
         // ACT
-        rrhhManager.handlerExcuse(mockExcuse);
-
+        areaSupervisor.handlerExcuse(mockExcuse);
         // ASSERT
         verify(mockExcuse, times(1)).setStatus(ExcuseStatus.Processed);
-        verify(mockStrategy, times(1)).handlerExcuse(rrhhManager, mockExcuse, mockEmailSender);
+        verify(mockStrategy, times(1)).handlerExcuse(areaSupervisor, mockExcuse, mockEmailSender);
         verify(mockNextHandler, never()).handlerExcuse(mockExcuse);
     }
 
     @Test
     void handlerExcuse_shouldDelegate_whenCannotHandle() {
         // ARRANGE
-        when(mockExcuse.isComplex()).thenReturn(false);
-
+        when(mockExcuse.isModerate()).thenReturn(false);
         // ACT
-        rrhhManager.handlerExcuse(mockExcuse);
-
+        areaSupervisor.handlerExcuse(mockExcuse);
         // ASSERT
         verify(mockNextHandler, times(1)).handlerExcuse(mockExcuse);
         verify(mockExcuse, never()).setStatus(any(ExcuseStatus.class));
