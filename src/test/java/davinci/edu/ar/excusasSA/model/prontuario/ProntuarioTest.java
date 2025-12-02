@@ -23,15 +23,12 @@ class ProntuarioTest {
 
     @BeforeEach
     void setUp() {
-        // ARRANGE
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void constructorWithArgs_shouldInitializeFieldsCorrectly() {
-        // ARRANGE
         prontuario = new Prontuario(mockEmployee, mockExcuse);
-        // ACT & ASSERT
         assertEquals(mockEmployee, prontuario.getEmployee(),
                 "The Employee must be initialized with the object passed to the constructor.");
         assertEquals(mockExcuse, prontuario.getExcuse(),

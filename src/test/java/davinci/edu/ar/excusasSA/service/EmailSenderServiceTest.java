@@ -9,7 +9,6 @@ class EmailSenderServiceTest {
 
     private EmailSenderService emailSenderService;
 
-    // Datos de prueba
     private final String VALID_DEST = "destino@ejemplo.com";
     private final String VALID_ORIGIN = "origen@empresa.com";
     private final String VALID_AFFAIR = "Notificación de excusa aprobada";
@@ -22,7 +21,6 @@ class EmailSenderServiceTest {
 
     @Test
     void sendEmail_ShouldExecuteWithoutException_WhenInputsAreValid() {
-        // Act & Assert
         assertDoesNotThrow(() -> {
             emailSenderService.sendEmail(VALID_DEST, VALID_ORIGIN, VALID_AFFAIR, VALID_BODY);
         }, "El envío de correo válido no debería lanzar excepciones.");

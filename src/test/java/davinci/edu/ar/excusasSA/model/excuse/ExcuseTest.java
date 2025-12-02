@@ -15,7 +15,6 @@ import static org.mockito.Mockito.*;
 
 public class ExcuseTest {
 
-    // Dependencias Simuladas
     @Mock
     private Employee mockEmployee;
     @Mock
@@ -32,9 +31,7 @@ public class ExcuseTest {
 
     @Test
     void constructor_ShouldInitializeFieldsAndDefaultStatus() {
-        // Arrange & Act
         excuse = new Excuse(mockEmployee, mockTypeExcuse);
-        // Assert
         assertEquals(mockEmployee, excuse.getEmployee(), "El empleado debe ser asignado.");
         assertEquals(mockTypeExcuse, excuse.getTypeExcuse(), "El tipo de excusa debe ser asignado.");
         assertEquals(LocalDate.now(), excuse.getRegisterDate(), "La fecha de registro debe ser hoy.");
@@ -44,19 +41,14 @@ public class ExcuseTest {
 
     @Test
     void executeProcess_ShouldDelegateToTypeExcuseStrategy() {
-        // Arrange
         excuse = new Excuse(mockEmployee, mockTypeExcuse);
-        // Act
         excuse.executeProcess(excuse, mockEmailSender);
-        // Assert
         verify(mockTypeExcuse, times(1)).executeProcess(excuse, mockEmailSender);
     }
 
     @Test
     void classificationMethods_ShouldReturnFalseByDefault() {
-        // Arrange
         excuse = new Excuse(mockEmployee, mockTypeExcuse);
-        // Assert
         assertFalse(excuse.isTrivial(), "isTrivial debe ser false por defecto.");
         assertFalse(excuse.isImplausible(), "isImplausible debe ser false por defecto.");
         assertFalse(excuse.isComplex(), "isComplex debe ser false por defecto.");

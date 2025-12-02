@@ -29,10 +29,8 @@ public class EmployeeTest {
     @Test
     @DisplayName("generateExcuse debe crear una instancia de Excuse con el empleado y TypeExcuse simulado")
     void generateExcuseShouldCreateExcuseObjectWithMock() {
-        // Arrange
         TrivialExcuse mockedTypeExcuse = Mockito.mock(TrivialExcuse.class);
         Excuse createdExcuse = employee.generateExcuse(mockedTypeExcuse);
-        // Assert
         assertNotNull(createdExcuse, "El método debe retornar una instancia de Excuse.");
         assertEquals(employee, createdExcuse.getEmployee(), "El empleado en la excusa debe ser la instancia actual.");
         assertEquals(mockedTypeExcuse, createdExcuse.getTypeExcuse(), "El TypeExcuse debe ser el objeto Mock pasado como argumento.");
