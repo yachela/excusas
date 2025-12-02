@@ -37,7 +37,7 @@ public class ExcuseTest {
         // Assert
         assertEquals(mockEmployee, excuse.getEmployee(), "El empleado debe ser asignado.");
         assertEquals(mockTypeExcuse, excuse.getTypeExcuse(), "El tipo de excusa debe ser asignado.");
-        assertEquals(LocalDate.now(), excuse.getFechaRegistro(), "La fecha de registro debe ser hoy.");
+        assertEquals(LocalDate.now(), excuse.getRegisterDate(), "La fecha de registro debe ser hoy.");
         assertEquals(ExcuseStatus.Pending, excuse.getStatus(), "El estado inicial debe ser Pending.");
         assertNull(excuse.getId(), "El ID debe ser nulo antes de la persistencia.");
     }
