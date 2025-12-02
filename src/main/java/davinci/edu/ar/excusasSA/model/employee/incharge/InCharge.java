@@ -23,6 +23,7 @@ public abstract class InCharge extends Employee implements Handler {
     protected Strategy strategy;
     @Transient
     protected Handler next;
+    @Transient
     protected EmailSenderService emailSender;
 
     protected InCharge(String name, String email, Long legajo, Strategy strategy) {
