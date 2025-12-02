@@ -32,40 +32,29 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id)
-                .map(employee -> ResponseEntity.ok(mapToDTO(employee)))
-                .orElse(ResponseEntity.notFound().build());
+        Employee employee = employeeService.getEmployeeById(id);
+        return ResponseEntity.ok(mapToDTO(employee));
     }
 
     @PostMapping
     public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO dto) {
-        try {
-            Employee savedEmployee = employeeService.createEmployee(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(savedEmployee));
-        } catch (IllegalArgumentException e) {
-            // Capturamos el error de rol inválido lanzado por el servicio
-            return ResponseEntity.badRequest().build();
-        }
+
+        Employee savedEmployee = employeeService.createEmployee(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(savedEmployee));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO dto) {
-        return employeeService.updateEmployee(id, dto)
-                .map(updated -> ResponseEntity.ok(mapToDTO(updated)))
-                .orElse(ResponseEntity.notFound().build());
+        Employee updated = employeeService.updateEmployee(id, dto);
+        return ResponseEntity.ok(mapToDTO(updated));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        boolean deleted = employeeService.deleteEmployee(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        employeeService.deleteEmployee(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // Mantenemos el mapper aquí para separar la Capa de Dominio (Entity) de la Capa de Vista (DTO)
     private EmployeeDTO mapToDTO(Employee employee) {
         String role = employee.getClass().getSimpleName();
         return new EmployeeDTO(
