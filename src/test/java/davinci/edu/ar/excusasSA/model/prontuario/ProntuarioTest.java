@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class ProntuarioTest {
 
@@ -18,8 +17,6 @@ class ProntuarioTest {
     private Employee mockEmployee;
     @Mock
     private Excuse mockExcuse;
-
-    private static final Long TEST_ID = 101L;
 
     @BeforeEach
     void setUp() {
