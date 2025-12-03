@@ -19,15 +19,11 @@ import org.springframework.stereotype.Component;
 public class CEO extends InCharge {
 
     @Transient
+    @Autowired
     private ProntuarioService prontuarioService;
 
     public CEO(String name, String email, Long legajo, Strategy strategy) {
         super(name, email, legajo, strategy);
-    }
-
-    @Autowired
-    public void setProntuarioService(ProntuarioService prontuarioService) {
-        this.prontuarioService = prontuarioService;
     }
 
     @Override
