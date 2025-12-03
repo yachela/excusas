@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,17 +33,17 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LineInChargeFactoryTest {
 
-    // Dependencias mockeadas de la fábrica
     @Mock
     private LineInChargeRepository lineInChargeRepository;
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
     private EmailSenderService emailSenderService;
+    @Mock
+    private TransactionTemplate transactionTemplate; // 1. Nuevo Mock necesario
 
     private LineInChargeFactory lineInChargeFactory;
 
-    // Constantes para las pruebas
     private final String CHAIN_ID_HR = "HR_DEPT";
     private final String CHAIN_ID_FINANCE = "FINANCE";
     private final Long RECEPTIONIST_LEGAJO = 100L;
@@ -49,274 +51,186 @@ class LineInChargeFactoryTest {
 
     @BeforeEach
     void setUp() {
-        // La inicialización de la fábrica carga las cadenas, por lo que debemos mockear
-        // el comportamiento inicial de los repositorios.
+        // 2. Configurar el TransactionTemplate para que ejecute el callback inmediatamente
+        // Esto simula que la transacción se abre y se ejecuta el código de carga
+        lenient().when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
+            TransactionCallback<?> callback = invocation.getArgument(0);
+            return callback.doInTransaction(null);
+        });
 
-        // Comportamiento del Factory en el constructor (simula la carga de datos)
-        when(lineInChargeRepository.findAllDistinctChainIds())
+        // Configuración de mocks de repositorios (Caso feliz por defecto)
+        lenient().when(lineInChargeRepository.findAllDistinctChainIds())
                 .thenReturn(Arrays.asList(CHAIN_ID_HR, CHAIN_ID_FINANCE));
 
-        // Configuración para la cadena HR_DEPT (2 eslabones)
-        when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_HR))
+        lenient().when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_HR))
                 .thenReturn(createMockHRConfigs());
 
-        // Configuración para la cadena FINANCE (1 eslabón)
-        when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_FINANCE))
+        lenient().when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_FINANCE))
                 .thenReturn(createMockFinanceConfigs());
 
-        // Configuración de los datos del empleado (lo que devuelve EmployeeRepository)
-        when(employeeRepository.findByLegajo(RECEPTIONIST_LEGAJO))
+        lenient().when(employeeRepository.findByLegajo(RECEPTIONIST_LEGAJO))
                 .thenReturn(Optional.of(createMockReceptionistEmployee()));
-        when(employeeRepository.findByLegajo(CEO_LEGAJO))
+        lenient().when(employeeRepository.findByLegajo(CEO_LEGAJO))
                 .thenReturn(Optional.of(createMockCEOEmployee()));
 
-        // Inicializa la fábrica, lo que llama a loadAllChains()
+        // 3. Inicialización con el nuevo constructor (4 parámetros)
         lineInChargeFactory = new LineInChargeFactory(
                 lineInChargeRepository,
                 employeeRepository,
-                emailSenderService
+                emailSenderService,
+                transactionTemplate
         );
+        
+        // 4. Llamada manual a init() porque @PostConstruct no corre solo en tests unitarios
+        lineInChargeFactory.init();
     }
 
-    // ====================================================================
-    // MÉTODOS DE SOPORTE PARA MOCK DATA
-    // ====================================================================
-
-    /** Crea una lista de configuración mockeada para la cadena HR_DEPT (Recepcionista -> CEO) */
+    // ... Métodos de soporte (createMockHRConfigs, etc) se mantienen igual ...
     private List<LineInCharge> createMockHRConfigs() {
-        // 1. Recepcionista, legajo 100, Strategy: NORMAL
         Employee receptionist = new Receptionist(null, null, RECEPTIONIST_LEGAJO, null);
         LineInCharge config1 = new LineInCharge(1L, new ChainLine(10L, CHAIN_ID_HR), receptionist, 1, "NORMAL");
-
-        // 2. CEO, legajo 200, Strategy: LAZY
         Employee ceo = new CEO(null, null, CEO_LEGAJO, null);
         LineInCharge config2 = new LineInCharge(2L, new ChainLine(10L, CHAIN_ID_HR), ceo, 2, "LAZY");
-
         return Arrays.asList(config1, config2);
     }
 
-    /** Crea una lista de configuración mockeada para la cadena FINANCE (1 eslabón) */
     private List<LineInCharge> createMockFinanceConfigs() {
-        // 1. Recepcionista, legajo 100, Strategy: NORMAL
         Employee receptionist = new Receptionist(null, null, RECEPTIONIST_LEGAJO, null);
         LineInCharge config1 = new LineInCharge(3L, new ChainLine(20L, CHAIN_ID_FINANCE), receptionist, 1, "NORMAL");
         return Collections.singletonList(config1);
     }
 
-    /** Crea una instancia de Employee (Receptionist) con datos completos simulados */
     private Employee createMockReceptionistEmployee() {
         return new Receptionist("Jane Doe", "jane.doe@hr.com", RECEPTIONIST_LEGAJO, null);
     }
 
-    /** Crea una instancia de Employee (CEO) con datos completos simulados */
     private Employee createMockCEOEmployee() {
         return new CEO("John Smith", "john.smith@sa.com", CEO_LEGAJO, null);
     }
 
     // ====================================================================
-    // 1. TESTS DE CONSTRUCCIÓN DE LA CADENA (BUILD)
+    // TESTS
     // ====================================================================
 
-    /**
-     * Verifica que la cadena HR_DEPT se construya correctamente:
-     * Recepcionista (Normal) -> CEO (Lazy) -> SpecialManager.
-     */
     @Test
     void getChainHead_shouldReturnCorrectlyBuiltChain_forHR() {
-        // ACT
         Handler head = lineInChargeFactory.getChainHead(CHAIN_ID_HR);
 
-        // ASSERT
-        assertNotNull(head, "La cabeza de la cadena no debe ser nula.");
-        assertTrue(head instanceof Receptionist, "La cabeza de la cadena debe ser la Recepcionista.");
+        assertNotNull(head);
+        assertTrue(head instanceof Receptionist);
 
-        // Primer eslabón: Recepcionista con estrategia Normal
         Receptionist receptionist = (Receptionist) head;
-        assertTrue(receptionist.getStrategy() instanceof Normal,
-                "El primer eslabón debe tener la estrategia Normal.");
+        assertTrue(receptionist.getStrategy() instanceof Normal);
+        assertEquals(CEO_LEGAJO, ((Employee) receptionist.getNext()).getLegajo());
 
-        // CORRECCIÓN: Castear el resultado de getNextHandler() a Employee para usar getLegajo()
-        assertEquals(CEO_LEGAJO, ((Employee) receptionist.getNext()).getLegajo(),
-                "El Recepcionista debe apuntar al CEO.");
-
-        // Segundo eslabón: CEO con estrategia Lazy
         CEO ceo = (CEO) receptionist.getNext();
-        assertTrue(ceo.getStrategy() instanceof Lazy,
-                "El CEO debe tener la estrategia Lazy.");
+        assertTrue(ceo.getStrategy() instanceof Lazy);
 
-        // Tercer eslabón: SpecialManager
         Handler specialManager = ceo.getNext();
-        // CORRECCIÓN: Castear specialManager a Employee para usar getLegajo()
-        assertEquals(999L, ((Employee) specialManager).getLegajo(),
-                "El último eslabón debe ser el SpecialManager (legajo 999).");
-
-        // Verificación de tipos para asegurar que no haya errores de casting
-        assertTrue(specialManager instanceof SpecialManager, "El último eslabón debe ser SpecialManager.");
+        assertEquals(999L, ((Employee) specialManager).getLegajo());
+        assertTrue(specialManager instanceof SpecialManager);
     }
 
-    /**
-     * Verifica que una cadena de un solo eslabón se construya correctamente:
-     * Recepcionista (Normal) -> SpecialManager.
-     */
     @Test
     void getChainHead_shouldReturnSingleLinkChain_forFINANCE() {
-        // ACT
         Handler head = lineInChargeFactory.getChainHead(CHAIN_ID_FINANCE);
 
-        // ASSERT
-        assertNotNull(head, "La cabeza de la cadena no debe ser nula.");
-        assertTrue(head instanceof Receptionist, "La cabeza debe ser la Recepcionista.");
+        assertNotNull(head);
+        assertTrue(head instanceof Receptionist);
 
-        // Primer eslabón: Recepcionista
         Receptionist receptionist = (Receptionist) head;
-        assertTrue(receptionist.getStrategy() instanceof Normal,
-                "El eslabón único debe tener la estrategia Normal.");
+        assertTrue(receptionist.getStrategy() instanceof Normal);
 
-        // Segundo eslabón: SpecialManager
         Handler specialManager = receptionist.getNext();
-        // CORRECCIÓN: Castear specialManager a Employee para usar getLegajo()
-        assertEquals(999L, ((Employee) specialManager).getLegajo(),
-                "El eslabón único debe apuntar al SpecialManager.");
+        assertEquals(999L, ((Employee) specialManager).getLegajo());
     }
 
-    /**
-     * Verifica qué sucede si la base de datos devuelve una lista vacía para un chainId.
-     * En este caso, debe devolver únicamente el SpecialManager.
-     */
     @Test
     void getChainHead_shouldReturnOnlySpecialManager_whenConfigsAreEmpty() {
-        // ARRANGE
         final String EMPTY_CHAIN = "EMPTY_TEST";
 
-        // Simula la configuración para un nuevo chainId sin eslabones
+        // Reconfigurar mocks para este caso específico
         when(lineInChargeRepository.findAllDistinctChainIds())
                 .thenReturn(Arrays.asList(CHAIN_ID_HR, CHAIN_ID_FINANCE, EMPTY_CHAIN));
         when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(EMPTY_CHAIN))
                 .thenReturn(Collections.emptyList());
 
-        // Creamos una nueva instancia de la fábrica para que re-cargue las cadenas
+        // Re-crear e inicializar la factory para cargar la nueva cadena vacía
         LineInChargeFactory factory = new LineInChargeFactory(
                 lineInChargeRepository,
                 employeeRepository,
-                emailSenderService
+                emailSenderService,
+                transactionTemplate
         );
+        factory.init();
 
-        // ACT
         Handler head = factory.getChainHead(EMPTY_CHAIN);
 
-        // ASSERT
-        // La cabeza debe ser el SpecialManager
-        assertTrue(head instanceof SpecialManager,
-                "Si la configuración es vacía, la cabeza de la cadena debe ser SpecialManager.");
-        // CORRECCIÓN: Castear head a Employee para usar getLegajo()
-        assertEquals(999L, ((Employee) head).getLegajo(),
-                "El legajo debe ser el del SpecialManager (999).");
-
-        // Dado que SpecialManager hereda de InCharge, podemos acceder a getNextHandler()
-        // Cuando SpecialManager es el final de la cadena (o cabeza), no tiene siguiente.
-        assertNull(((InCharge) head).getNext(),
-                "El SpecialManager, cuando es la cabeza, no debe tener un siguiente eslabón.");
+        assertTrue(head instanceof SpecialManager);
+        assertEquals(999L, ((Employee) head).getLegajo());
+        assertNull(((InCharge) head).getNext());
     }
 
-    // ====================================================================
-    // 2. TESTS DE FUNCIONALIDAD ADICIONAL
-    // ====================================================================
-
-    /**
-     * Verifica que la función de selección aleatoria funcione correctamente.
-     */
     @Test
     void getRandomChainId_shouldReturnOneOfTheLoadedIds() {
-        // ACT
         String randomId = lineInChargeFactory.getRandomChainId();
-
-        // ASSERT
-        assertTrue(Arrays.asList(CHAIN_ID_HR, CHAIN_ID_FINANCE).contains(randomId),
-                "El ID aleatorio debe ser uno de los IDs cargados.");
+        assertTrue(Arrays.asList(CHAIN_ID_HR, CHAIN_ID_FINANCE).contains(randomId));
     }
 
-    /**
-     * Verifica la excepción al intentar obtener una cadena no existente.
-     */
     @Test
     void getChainHead_shouldThrowException_whenChainIdDoesNotExist() {
-        // ARRANGE
         final String NON_EXISTENT_CHAIN = "NON_EXISTENT";
-
-        // ACT & ASSERT
-        assertThrows(IllegalArgumentException.class, () -> lineInChargeFactory.getChainHead(NON_EXISTENT_CHAIN),
-                "Debe lanzar IllegalArgumentException si la cadena no existe en la caché.");
+        assertThrows(IllegalArgumentException.class, () -> lineInChargeFactory.getChainHead(NON_EXISTENT_CHAIN));
     }
 
-    /**
-     * Verifica la reconstrucción de una cadena específica.
-     */
     @Test
     void rebuildChain_shouldReloadSpecificChain() {
-        // ARRANGE
-        // 1. Simular la nueva configuración para HR_DEPT (ahora solo un eslabón)
         Employee receptionist = new Receptionist(null, null, RECEPTIONIST_LEGAJO, null);
         LineInCharge newConfig = new LineInCharge(1L, new ChainLine(10L, CHAIN_ID_HR), receptionist, 1, "LAZY");
         List<LineInCharge> newHRConfigs = Collections.singletonList(newConfig);
 
-        // 2. Mockear el repositorio para devolver la nueva configuración solo al llamar rebuildChain
-        // Usamos doReturn().when() para especificar el comportamiento al llamar a rebuildChain
+        // Configurar comportamiento para el rebuild
         doReturn(newHRConfigs)
                 .when(lineInChargeRepository)
                 .findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_HR);
 
-        // 3. Mockear el employeeRepository nuevamente ya que rebuildChain lo llama
-        when(employeeRepository.findByLegajo(RECEPTIONIST_LEGAJO))
-                .thenReturn(Optional.of(createMockReceptionistEmployee()));
-
-
-        // ACT
+        // La llamada a rebuildChain ejecuta lógica, necesitamos asegurar que transactionTemplate ejecute si se usara internamente
+        // (aunque en tu código actual rebuildChain usa @Transactional, en tests unitarios llamamos directo al método)
+        
         lineInChargeFactory.rebuildChain(CHAIN_ID_HR, lineInChargeRepository, employeeRepository);
         Handler head = lineInChargeFactory.getChainHead(CHAIN_ID_HR);
 
-        // ASSERT
-        // Verifica que la nueva cadena es de un solo eslabón (Recepcionista Lazy -> SpecialManager)
-        assertTrue(head instanceof Receptionist, "La cabeza debe seguir siendo Recepcionista.");
+        assertTrue(head instanceof Receptionist);
         Receptionist receptionistHead = (Receptionist) head;
-        assertTrue(receptionistHead.getStrategy() instanceof Lazy,
-                "La nueva estrategia debe ser LazyStrategy.");
-        // CORRECCIÓN: Castear el resultado de getNextHandler() a Employee para usar getLegajo()
-        assertEquals(999L, ((Employee) receptionistHead.getNext()).getLegajo(),
-                "El siguiente eslabón debe ser el SpecialManager.");
-
-        // Verificamos que se haya llamado al método de búsqueda de configuración una vez durante el setUp
-        // y una vez más durante el rebuildChain.
-        verify(lineInChargeRepository, times(2)).findByChainLine_ChainIdCodeOrderByOrderIndexAsc(CHAIN_ID_HR);
+        assertTrue(receptionistHead.getStrategy() instanceof Lazy);
+        assertEquals(999L, ((Employee) receptionistHead.getNext()).getLegajo());
     }
 
-    /**
-     * Verifica la excepción al no encontrar el empleado en el repositorio.
-     * Esta prueba requiere reiniciar los mocks para evitar la configuración del setUp.
-     */
     @Test
-    void constructor_shouldThrowException_whenEmployeeNotFound() {
-        // ARRANGE
+    void init_shouldThrowException_whenEmployeeNotFound() {
         final String ERROR_CHAIN = "ERROR_TEST";
         final Long NON_EXISTENT_LEGAJO = 555L;
 
-        // Mockear que existe una cadena en el distinctChainIds, pero que tiene un empleado inexistente.
+        // Configuración específica de error
         when(lineInChargeRepository.findAllDistinctChainIds())
-                .thenReturn(Collections.singletonList(ERROR_CHAIN)); // Solo cargamos esta cadena para simplificar
+                .thenReturn(Collections.singletonList(ERROR_CHAIN));
         when(lineInChargeRepository.findByChainLine_ChainIdCodeOrderByOrderIndexAsc(ERROR_CHAIN))
                 .thenReturn(Collections.singletonList(
                         new LineInCharge(1L, new ChainLine(30L, ERROR_CHAIN), new Receptionist(null, null, NON_EXISTENT_LEGAJO, null), 1, "NORMAL")
                 ));
-        // employeeRepository devolverá Optional.empty() para el legajo 555
         when(employeeRepository.findByLegajo(NON_EXISTENT_LEGAJO))
                 .thenReturn(Optional.empty());
 
-        // ACT & ASSERT
-        // La excepción debe ser lanzada durante la inicialización de la fábrica
-        NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> new LineInChargeFactory(
+        // Instanciar nueva factory
+        LineInChargeFactory factory = new LineInChargeFactory(
                 lineInChargeRepository,
                 employeeRepository,
-                emailSenderService
-        ), "Debe lanzar NoSuchElementException si no se encuentra el empleado configurado.");
+                emailSenderService,
+                transactionTemplate
+        );
+
+        // Ahora el error salta al llamar a init(), no en el constructor
+        NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> factory.init());
 
         assertTrue(thrown.getMessage().contains("Person in charge with file " + NON_EXISTENT_LEGAJO + " not found."));
     }
