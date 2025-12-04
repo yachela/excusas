@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeDTO {
-    @Id
+
     private Long id;
     @NotBlank(message = "Name cannot be blank")
     private String name;

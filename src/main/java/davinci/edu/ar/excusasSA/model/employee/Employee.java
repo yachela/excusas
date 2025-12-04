@@ -12,6 +12,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.UniqueElements;
 
 /**
  * Clase Abstracta Base para todos los empleados. Define el comportamiento de
@@ -45,6 +46,7 @@ public abstract class Employee {
 
     private String name;
     private String email;
+    @Column(unique = true, nullable = false)
     private Long legajo;
 
     protected Employee(String name, String email, Long legajo) {
