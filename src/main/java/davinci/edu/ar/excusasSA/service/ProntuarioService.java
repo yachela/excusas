@@ -29,7 +29,7 @@ public class ProntuarioService {
     @Transactional(readOnly = true)
     public Prontuario getProntuarioById(Long id) {
         return prontuarioRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Prontuario no encontrado con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Prontuario not found with ID: " + id));
     }
 
     @Transactional

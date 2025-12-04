@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/prontuarios")
+@RequestMapping("/prontuario")
 public class ProntuarioController {
 
     private final ProntuarioService prontuarioService;
