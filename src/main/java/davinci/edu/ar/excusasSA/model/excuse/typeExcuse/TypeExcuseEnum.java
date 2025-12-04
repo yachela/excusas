@@ -27,7 +27,7 @@ public enum TypeExcuseEnum {
             return new ImplausibleExcuse();
         }
     },
-    // Las constantes deben coincidir con los strings que esperas de entrada (Ej: POWER_OUTAGE)
+    // Las constantes deben coincidir con los strings que esperas de entrada (Ej: POWEROUTAGE)
     POWEROUTAGE {
         @Override
         public TypeExcuse createExcuseInstance() {

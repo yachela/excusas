@@ -8,8 +8,10 @@ import davinci.edu.ar.excusasSA.model.excuse.ExcuseStatus;
 import davinci.edu.ar.excusasSA.model.excuse.typeExcuse.TypeExcuse;
 import davinci.edu.ar.excusasSA.factory.LineInChargeFactory;
 import davinci.edu.ar.excusasSA.factory.TypeExcuseFactory;
+import davinci.edu.ar.excusasSA.model.prontuario.Prontuario;
 import davinci.edu.ar.excusasSA.repository.EmployeeRepository;
 import davinci.edu.ar.excusasSA.repository.ExcuseRepository;
+import davinci.edu.ar.excusasSA.repository.ProntuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,17 +27,20 @@ public class ExcuseService {
     private final EmployeeRepository employeeRepository;
     private final TypeExcuseFactory typeExcuseFactory;
     private final LineInChargeFactory lineInChargeFactory;
+    private final ProntuarioService prontuarioService;
 
     /** Inyecta las dependencias necesarias: repositorios y factories. */
     @Autowired
     public ExcuseService(ExcuseRepository excuseRepository,
                          EmployeeRepository employeeRepository,
                          TypeExcuseFactory typeExcuseFactory,
-                         LineInChargeFactory lineInChargeFactory) {
+                         LineInChargeFactory lineInChargeFactory,
+                         ProntuarioService prontuarioService) {
         this.excuseRepository = excuseRepository;
         this.employeeRepository = employeeRepository;
         this.typeExcuseFactory = typeExcuseFactory;
         this.lineInChargeFactory = lineInChargeFactory;
+        this.prontuarioService = prontuarioService;
     }
 
     /** Registra una nueva excusa, la procesa por una cadena de encargados ALEATORIA y la persiste. */
@@ -47,7 +52,12 @@ public class ExcuseService {
         Excuse newExcuse = employee.generateExcuse(typeExcuse);
         Handler chainHead = lineInChargeFactory.getChainHead(processingChainId);
         chainHead.handlerExcuse(newExcuse);
-        return excuseRepository.save(newExcuse);
+        Excuse savedExcuse = excuseRepository.save(newExcuse);
+        if(savedExcuse.isProcessedByCEO()){
+            Prontuario newProntuario = new Prontuario(employee, savedExcuse);
+            prontuarioService.addProntuario(newProntuario);
+        }
+        return newExcuse;
     }
 
     /** Obtiene todas las excusas asociadas a un legajo de empleado. */
@@ -62,8 +72,8 @@ public class ExcuseService {
 
     /** Elimina permanentemente las excusas registradas antes de una fecha límite. */
     @Transactional
-    public int deleteExcusesBeforeDate(LocalDate fechaLimite) {
-        return excuseRepository.deleteByRegisterDateBefore(fechaLimite);
+    public int deleteExcusesBeforeDate(LocalDate limitDate) {
+        return excuseRepository.deleteByRegisterDateBefore(limitDate);
     }
 
     /** Obtiene excusas aplicando filtros opcionales de rango de fechas y estado. */

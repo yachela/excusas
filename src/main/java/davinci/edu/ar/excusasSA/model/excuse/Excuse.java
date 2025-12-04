@@ -31,6 +31,8 @@ public class Excuse implements IExcuse {
 
     private LocalDate registerDate;
 
+    private boolean processedByCEO;
+
     @Enumerated(EnumType.STRING)
     private ExcuseStatus status;
 
@@ -39,6 +41,7 @@ public class Excuse implements IExcuse {
         this.typeExcuse = typeExcuse;
         this.registerDate = LocalDate.now();
         this.status = ExcuseStatus.Pending;
+        this.processedByCEO = false;
     }
 
     public void executeProcess(Excuse excuse , EmailSenderService emailSender) {

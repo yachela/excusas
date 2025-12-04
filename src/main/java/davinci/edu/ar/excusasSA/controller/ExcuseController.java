@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/excusas")
+@RequestMapping("/excuse")
 public class ExcuseController {
 
     private final ExcuseService excuseService;
@@ -76,7 +76,7 @@ public class ExcuseController {
             );
         }
         int count = excuseService.deleteExcusesBeforeDate(limiteDate);
-        return ResponseEntity.ok("They were successfully removed " + count + " excuses prior to the date " + limiteDate + ".");
+        return ResponseEntity.ok("Successfully  removed " + count + " excuses registered before " + limiteDate + ".");
     }
 
     // Convierte un objeto Excuse (modelo) a un ExcuseDTO.

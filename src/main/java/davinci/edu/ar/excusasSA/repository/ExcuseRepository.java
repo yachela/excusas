@@ -17,7 +17,7 @@ public interface ExcuseRepository extends JpaRepository<Excuse, Long> {
     // Busca todas las excusas que tienen un estado de aprobación particular (e.g., Pending, Denied, Accepted).
     List<Excuse> findByStatus(ExcuseStatus status);
     // Elimina todas las excusas cuya fecha de registro sea anterior al límite proporcionado. Retorna el conteo de eliminados.
-    int deleteByRegisterDateBefore(LocalDate fechaLimite);
+    int deleteByRegisterDateBefore(LocalDate registerDate);
     // Consulta personalizada para buscar excusas con filtros opcionales de rango de fechas y estado.
     @Query("SELECT e FROM Excuse e JOIN e.typeExcuse te " +
             "WHERE (:fechaDesde IS NULL OR e.registerDate >= :fechaDesde) " +
