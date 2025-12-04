@@ -56,6 +56,7 @@ public abstract class InCharge extends Employee implements Handler {
     }
 
     public void processExcuse(Excuse excuse, EmailSenderService emailSender) {
+        excuse.setStatus(ExcuseStatus.Accepted);
         excuse.executeProcess(excuse, emailSender);
     }
 
