@@ -8,9 +8,9 @@ import davinci.edu.ar.excusasSA.service.EmailSenderService;
 import davinci.edu.ar.excusasSA.service.ProntuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +26,7 @@ class CEOTest {
     @Mock
     private Excuse mockExcuse;
     @Mock
-    private ProntuarioService mockProntuarioService;
+    private ProntuarioService mockProntuarioService; // Este es el mock que necesitamos inyectar
     @Mock
     private Employee mockEmployee;
 
@@ -36,10 +36,21 @@ class CEOTest {
 
     @BeforeEach
     void setUp() {
-        // ARRANGE
+        // 1. Inicializa los Mocks
         MockitoAnnotations.openMocks(this);
+
+        // 2. Crea la instancia del CEO
         ceo = new CEO(NAME, EMAIL, LEGAJO, mockStrategy);
-        ceo.setProntuarioService(mockProntuarioService);
+
+        // 3. ¡SOLUCIÓN! Inyectar el mock de ProntuarioService en el campo privado 'prontuarioService'
+        // Esto simula lo que haría Spring Boot.
+        try {
+            java.lang.reflect.Field field = CEO.class.getDeclaredField("prontuarioService");
+            field.setAccessible(true);
+            field.set(ceo, mockProntuarioService);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Error al inyectar mockProntuarioService en CEO", e);
+        }
     }
 
     @Test
@@ -63,13 +74,19 @@ class CEOTest {
     @Test
     void processExcuse_shouldExecuteExcuseAndSaveProntuario() {
         // ARRANGE
+        // Ahora, 'ceo.prontuarioService' ya NO es null debido a la inyección en setUp.
         when(mockExcuse.getEmployee()).thenReturn(mockEmployee);
         ArgumentCaptor<Prontuario> prontuarioCaptor = ArgumentCaptor.forClass(Prontuario.class);
+
         // ACT
         ceo.processExcuse(mockExcuse, mockEmailSender);
+
         // ASSERT
         verify(mockExcuse, times(1)).executeProcess(mockExcuse, mockEmailSender);
+
+        // Verificación que ahora SÍ se ejecutará, ya que prontuarioService no es null
         verify(mockProntuarioService, times(1)).addProntuario(prontuarioCaptor.capture());
+
         Prontuario createdProntuario = prontuarioCaptor.getValue();
         assertNotNull(createdProntuario, "A Prontuario object must be created.");
         assertSame(mockEmployee, createdProntuario.getEmployee(),

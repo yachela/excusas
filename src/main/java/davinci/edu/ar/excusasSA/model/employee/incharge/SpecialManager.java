@@ -1,16 +1,10 @@
 package davinci.edu.ar.excusasSA.model.employee.incharge;
 
 import davinci.edu.ar.excusasSA.model.excuse.Excuse;
+import davinci.edu.ar.excusasSA.model.excuse.ExcuseStatus;
 import davinci.edu.ar.excusasSA.model.strategy.Normal;
-import davinci.edu.ar.excusasSA.model.strategy.Strategy;
 import davinci.edu.ar.excusasSA.service.EmailSenderService;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import lombok.NoArgsConstructor;
 
-@Entity
-@NoArgsConstructor
-@DiscriminatorValue("SPECIALMANAGER")
 public class SpecialManager extends InCharge {
 
     public SpecialManager(String name, String email, Long legajo) {
@@ -18,6 +12,7 @@ public class SpecialManager extends InCharge {
     }
     @Override
     public void processExcuse(Excuse excuse, EmailSenderService emailSender) {
+        excuse.setStatus(ExcuseStatus.Denied);
         emailSender.sendEmail(excuse.getEmployee().getEmail(),this.getEmail(),
                 "excuse rejected", "we need hard evidence");
     }

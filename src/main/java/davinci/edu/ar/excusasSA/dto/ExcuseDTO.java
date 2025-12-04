@@ -1,9 +1,8 @@
 package davinci.edu.ar.excusasSA.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Getter
@@ -12,11 +11,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ExcuseDTO {
     private Long id;
-    private Long employeeId;
-    @NotBlank(message = "Type Excuse cannot be blank")
-    private String typeExcuseName;
-    @NotBlank(message = "Register Date cannot be blank")
-    private LocalDate RegisterDate;
-    @NotBlank(message = "Status cannot be blank")
     private String status;
+    private LocalDate registerDate;
+    @NotNull(message = "Employee Legajo cannot be null")
+    private Long employeeLegajo;
+    @NotBlank(message = "Type Excuse Name cannot be blank")
+    private String typeExcuseName;
 }

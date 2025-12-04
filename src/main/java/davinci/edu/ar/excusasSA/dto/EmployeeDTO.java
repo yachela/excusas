@@ -1,5 +1,6 @@
 package davinci.edu.ar.excusasSA.dto;
 
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -13,8 +14,8 @@ public class EmployeeDTO {
     @NotBlank(message = "Name cannot be blank")
     private String name;
     @NotBlank(message = "Email cannot be blank")
-    @Email(message = "El formato del email es inválido (debe contener '@' y un dominio).")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", message = "El email debe ser un formato estándar: usuario@dominio.com")
+    @Email(message = "The email format is invalid (it must contain '@' and a domain).")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", message = "The email address must be in a standard format: user@domain.com")
     private String email;
     private Long legajo;
     @NotBlank(message = "Role cannot be blank")

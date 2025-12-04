@@ -35,6 +35,6 @@ public class EmployeeTest {
         assertEquals(employee, createdExcuse.getEmployee(), "El empleado en la excusa debe ser la instancia actual.");
         assertEquals(mockedTypeExcuse, createdExcuse.getTypeExcuse(), "El TypeExcuse debe ser el objeto Mock pasado como argumento.");
         assertEquals(ExcuseStatus.Pending, createdExcuse.getStatus(), "El status inicial debe ser PENDIENTE.");
-        assertNotNull(createdExcuse.getFechaRegistro(), "La fecha de registro debe haberse establecido.");
+        assertNotNull(createdExcuse.getRegisterDate(), "La fecha de registro debe haberse establecido.");
     }
 }

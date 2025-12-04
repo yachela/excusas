@@ -29,7 +29,9 @@ public class Excuse implements IExcuse {
     @JoinColumn(name = "type_excuse_id")
     private TypeExcuse typeExcuse;
 
-    private LocalDate fechaRegistro;
+    private LocalDate registerDate;
+
+    private boolean processedByCEO;
 
     @Enumerated(EnumType.STRING)
     private ExcuseStatus status;
@@ -37,8 +39,9 @@ public class Excuse implements IExcuse {
     public Excuse(Employee employee, TypeExcuse typeExcuse) {
         this.employee = employee;
         this.typeExcuse = typeExcuse;
-        this.fechaRegistro = LocalDate.now();
+        this.registerDate = LocalDate.now();
         this.status = ExcuseStatus.Pending;
+        this.processedByCEO = false;
     }
 
     public void executeProcess(Excuse excuse , EmailSenderService emailSender) {
