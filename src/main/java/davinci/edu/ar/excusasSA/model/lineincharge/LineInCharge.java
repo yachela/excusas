@@ -26,12 +26,12 @@ public class LineInCharge {
     private Long id;
 
     // Relación ManyToOne: Clave foránea que apunta a la línea (Chain).
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chainLine_fk", nullable = false)
     private ChainLine chainLine;
 
     // Relación ManyToOne: Clave foránea que apunta al empleado (Employee).
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_fk", nullable = false)
     private Employee employee;
 

@@ -1,5 +1,6 @@
 package davinci.edu.ar.excusasSA.service;
 
+import davinci.edu.ar.excusasSA.dto.LineInChargeDTO;
 import davinci.edu.ar.excusasSA.factory.LineInChargeFactory;
 import davinci.edu.ar.excusasSA.model.employee.Employee;
 import davinci.edu.ar.excusasSA.model.employee.incharge.Receptionist;
@@ -22,7 +23,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,11 +46,11 @@ class LineInChargeServiceTest {
     @InjectMocks
     private LineInChargeService lineInChargeService;
 
-    private LineInCharge mockInputConfig;
-    private LineInCharge mockSavedConfig;
-    private ChainLine inputChainLine;
-    private ChainLine persistentChainLine;
-    private Employee mockEmployee;
+    // Elementos de Entrada/Salida
+    private LineInChargeDTO mockInputDTO; // Nuevo objeto de entrada
+    private LineInCharge mockSavedConfig; // Objeto de salida (Entidad)
+    private ChainLine persistentChainLine; // ChainLine ya guardado
+    private Employee mockEmployee; // Empleado encontrado por el Legajo
 
     private final String CHAIN_CODE = "HR_DEPT";
     private final Long LEGAJO = 600L;
@@ -55,29 +58,29 @@ class LineInChargeServiceTest {
     private final String STRATEGY_LAZY = "LAZY";
     private final Long CONFIG_ID = 1L;
     private final Long EMPLOYEE_ID = 100L;
+    private final Long NON_EXISTENT_LEGAJO = 999L;
 
     @BeforeEach
     void setUp() {
-        // Objeto ChainLine que entra en el LineInCharge
-        inputChainLine = new ChainLine(CHAIN_CODE);
+        // --- 1. DTO de Entrada (Lo que recibe el Service) ---
+        mockInputDTO = new LineInChargeDTO(
+                null,
+                LEGAJO,
+                CHAIN_CODE,
+                2,
+                STRATEGY_PRODUCTIVE
+        );
 
-        // Objeto ChainLine que simula estar en la BD (con ID)
+        // --- 2. Objetos de Dependencia (Lo que los Repositories deben devolver) ---
+
+        // ChainLine que simula estar en la BD (con ID)
         persistentChainLine = new ChainLine(CONFIG_ID, CHAIN_CODE);
 
         // Objeto Employee (ya persistido y con ID)
         mockEmployee = new Receptionist("Test Name", "test@sa.com", LEGAJO, null);
         mockEmployee.setId(EMPLOYEE_ID);
 
-        // Configuración de Línea de Entrada (sin ID de LineInCharge)
-        mockInputConfig = new LineInCharge(
-                null,
-                inputChainLine,
-                mockEmployee,
-                2,
-                STRATEGY_PRODUCTIVE
-        );
-
-        // Configuración de Línea Guardada (con ID de LineInCharge y ChainLine persistido)
+        // --- 3. Configuración de Línea Guardada (Lo que el Service devuelve) ---
         mockSavedConfig = new LineInCharge(
                 CONFIG_ID,
                 persistentChainLine,
@@ -89,32 +92,59 @@ class LineInChargeServiceTest {
 
     /**
      * Test para createLineConfig: Verifica la creación de la configuración
-     * cuando ChainLine ya existe en la BD.
+     * cuando ChainLine y Employee ya existen.
      */
     @Test
-    void createLineConfig_whenChainLineExists_shouldSaveAndRebuildChain() {
+    void createLineConfig_whenEmployeeAndChainLineExist_shouldSaveAndRebuildChain() {
         // Arrange
-        // 1. Mock: ChainLine existe en la BD
+        // 1. Mock: Employee existe (nuevo mock necesario)
+        when(employeeRepository.findByLegajo(LEGAJO)).thenReturn(Optional.of(mockEmployee));
+
+        // 2. Mock: ChainLine existe en la BD
         when(chainLineRepository.findByChainIdCode(CHAIN_CODE)).thenReturn(Optional.of(persistentChainLine));
 
-        // 2. Mock: Repository.save devuelve el objeto guardado
+        // 3. Mock: Repository.save devuelve el objeto guardado
         when(lineInChargeRepository.save(any(LineInCharge.class))).thenReturn(mockSavedConfig);
 
         // Act
-        LineInCharge result = lineInChargeService.createLineConfig(mockInputConfig);
+        LineInCharge result = lineInChargeService.createLineConfig(mockInputDTO);
 
         // Assert
         // Verifica que se haya devuelto el objeto guardado
         assertNotNull(result);
         assertEquals(CONFIG_ID, result.getId());
-        assertEquals(persistentChainLine, result.getChainLine()); // Debe tener el ChainLine persistido
+        assertEquals(persistentChainLine, result.getChainLine());
+        assertEquals(LEGAJO, result.getEmployee().getLegajo());
 
         // Verifica las interacciones del repositorio
+        verify(employeeRepository, times(1)).findByLegajo(LEGAJO);
         verify(chainLineRepository, never()).save(any(ChainLine.class)); // No se debe guardar un nuevo ChainLine
         verify(lineInChargeRepository, times(1)).save(any(LineInCharge.class)); // Se guarda la LineInCharge
 
         // Verifica que se reconstruya la cadena de responsabilidad
         verify(lineInChargeFactory, times(1)).rebuildChain(eq(CHAIN_CODE), eq(lineInChargeRepository), eq(employeeRepository));
+    }
+
+    /**
+     * Test para createLineConfig: Verifica el error si el Employee no se encuentra.
+     */
+    @Test
+    void createLineConfig_whenEmployeeDoesNotExist_shouldThrowException() {
+        // Arrange
+        LineInChargeDTO dtoWithBadLegajo = new LineInChargeDTO(null, NON_EXISTENT_LEGAJO, CHAIN_CODE, 1, STRATEGY_PRODUCTIVE);
+
+        // 1. Mock: Employee NO existe
+        when(employeeRepository.findByLegajo(NON_EXISTENT_LEGAJO)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            lineInChargeService.createLineConfig(dtoWithBadLegajo);
+        });
+
+        // Verifica que NO se haya intentado buscar/crear ChainLine ni guardar LineInCharge
+        verify(chainLineRepository, never()).findByChainIdCode(anyString());
+        verify(lineInChargeRepository, never()).save(any(LineInCharge.class));
+        verify(lineInChargeFactory, never()).rebuildChain(anyString(), any(), any());
     }
 
     /**
@@ -124,22 +154,25 @@ class LineInChargeServiceTest {
     @Test
     void createLineConfig_whenChainLineDoesNotExist_shouldCreateNewChainLine() {
         // Arrange
-        // 1. Mock: ChainLine NO existe en la BD
+        // 1. Mock: Employee existe
+        when(employeeRepository.findByLegajo(LEGAJO)).thenReturn(Optional.of(mockEmployee));
+
+        // 2. Mock: ChainLine NO existe en la BD
         when(chainLineRepository.findByChainIdCode(CHAIN_CODE)).thenReturn(Optional.empty());
 
-        // 2. Mock: Se simula la creación y guardado del ChainLine
+        // 3. Mock: Se simula la creación y guardado del ChainLine
         when(chainLineRepository.save(any(ChainLine.class))).thenReturn(persistentChainLine);
 
-        // 3. Mock: Repository.save devuelve el objeto guardado
+        // 4. Mock: Repository.save devuelve el objeto guardado
         when(lineInChargeRepository.save(any(LineInCharge.class))).thenReturn(mockSavedConfig);
 
         // Act
-        LineInCharge result = lineInChargeService.createLineConfig(mockInputConfig);
+        LineInCharge result = lineInChargeService.createLineConfig(mockInputDTO);
 
         // Assert
         assertNotNull(result);
 
-        // Verifica que se haya llamado a guardar el ChainLine y la LineInCharge
+        // Verifica que se haya llamado a guardar el ChainLine
         verify(chainLineRepository, times(1)).save(any(ChainLine.class));
         verify(lineInChargeRepository, times(1)).save(any(LineInCharge.class));
 
